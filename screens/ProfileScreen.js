@@ -1,13 +1,15 @@
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, useWindowDimensions } from 'react-native';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADII, FONTS } from '../theme';
 
 export default function ProfileScreen() {
   const [theme, setTheme] = useState('light');
+  const { width } = useWindowDimensions(); // Ekran genişliğini alıyoruz
+  
   const currentTheme = COLORS[theme];
+  const isLargeScreen = width > 500; // Geniş ekran kontrolü
 
-  // Tema değiştirme fonksiyonu
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
@@ -15,7 +17,7 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.container, { backgroundColor: currentTheme.bg }]}>
       
-      {/* Tema Değiştirme Butonu (Sağ Üst) */}
+      {/* Tema Değiştirme Butonu */}
       <Pressable onPress={toggleTheme} style={styles.themeToggle}>
         <Ionicons 
           name={theme === 'light' ? 'moon' : 'sunny'} 
@@ -24,13 +26,24 @@ export default function ProfileScreen() {
         />
       </Pressable>
 
-      {/* Profil Kartı */}
-      <View style={[styles.card, { backgroundColor: currentTheme.card }]}>
-        <Ionicons name="person-circle-outline" size={80} color={currentTheme.text} />
+      {/* Profil Kartı - Dinamik Stil */}
+      <View style={[
+        styles.card, 
+        { 
+          backgroundColor: currentTheme.card,
+          width: isLargeScreen ? '50%' : '85%', // Büyük ekranda daha dar, mobilde geniş
+          padding: isLargeScreen ? SPACING.xl : SPACING.lg
+        }
+      ]}>
+        <Ionicons 
+          name="person-circle-outline" 
+          size={isLargeScreen ? 120 : 80} // İkon boyutu da değişiyor
+          color={currentTheme.text} 
+        />
+        
         <Text style={[styles.name, { color: currentTheme.text }]}>John Doe</Text>
         <Text style={[styles.role, { color: currentTheme.text }]}>Mobile Developer</Text>
 
-        {/* Like Butonu */}
         <Pressable
           style={({ pressed }) => [
             styles.likeButton,
@@ -57,19 +70,18 @@ const styles = StyleSheet.create({
     top: 50,
     right: 20,
     padding: SPACING.sm,
-    zIndex: 1, // Butonun üstte kalmasını sağlar
+    zIndex: 1,
   },
   card: {
-    width: '85%',
+    // Sabit width kaldırıldı, yukarıda dinamik verilecek
     borderRadius: RADII.md,
     alignItems: 'center',
-    padding: SPACING.lg,
-    // iOS gölgesi
+    // iOS shadow
     shadowColor: COLORS.light.cardShadow,
     shadowOpacity: 0.15,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    // Android gölgesi
+    // Android shadow
     elevation: 6,
   },
   name: {
